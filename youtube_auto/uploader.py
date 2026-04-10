@@ -120,6 +120,57 @@ def upload_video(video_path: str, thumbnail_path: str, script_data: dict) -> str
     return video_url
 
 
+def upload_shorts(video_path: str, script_data: dict) -> str:
+    """Shorts動画をYouTubeにアップロードする。"""
+    from googleapiclient.http import MediaFileUpload
+
+    title = script_data.get("title", "#Shorts 今日の雑学")
+    if "#Shorts" not in title:
+        title = title + " #Shorts"
+
+    description = f"""{script_data.get('hook', '')}
+
+{script_data.get('body', '')}
+
+━━━━━━━━━━━━━━━━━━━━━
+📌 毎日雑学をお届け！チャンネル登録よろしくお願いします！
+━━━━━━━━━━━━━━━━━━━━━
+
+#Shorts #雑学 #豆知識 #面白い話
+
+投稿日時: {datetime.now().strftime('%Y年%m月%d日')}"""
+
+    print(f"  Shorts アップロード中: 「{title}」")
+    youtube = get_authenticated_service()
+
+    body = {
+        "snippet": {
+            "title": title[:100],
+            "description": description[:5000],
+            "tags": ["Shorts", "雑学", "豆知識", "面白い話"],
+            "categoryId": "27",
+            "defaultLanguage": "ja",
+        },
+        "status": {
+            "privacyStatus": "public",
+            "selfDeclaredMadeForKids": False,
+        },
+    }
+
+    media = MediaFileUpload(video_path, mimetype="video/mp4", resumable=True)
+    request = youtube.videos().insert(part=",".join(body.keys()), body=body, media_body=media)
+    response = None
+    while response is None:
+        status, response = request.next_chunk()
+        if status:
+            print(f"  Shortsアップロード進捗: {int(status.progress() * 100)}%")
+
+    video_id = response["id"]
+    url = f"https://www.youtube.com/shorts/{video_id}"
+    print(f"  Shorts完了: {url}")
+    return url
+
+
 def check_credentials_ready() -> bool:
     """認証情報が準備できているか確認する。"""
     return os.path.exists(YOUTUBE_CLIENT_SECRET_FILE)

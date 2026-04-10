@@ -9,7 +9,7 @@ from config import OUTPUT_DIR
 
 THUMB_W = 1280
 THUMB_H = 720
-FONT_PATH = "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc"
+FONT_PATH = "/home/takah/.local/share/fonts/NotoSansCJKjp-Bold.otf"
 FONT_PATH_FALLBACK = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 
 

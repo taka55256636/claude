@@ -9,8 +9,8 @@ from moviepy import AudioFileClip, ImageClip, concatenate_videoclips
 from config import (OUTPUT_DIR, VIDEO_WIDTH, VIDEO_HEIGHT, VIDEO_FPS,
                     BG_COLOR, TITLE_COLOR, TEXT_COLOR, ACCENT_COLOR)
 
-FONT_PATH = "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc"
-FONT_PATH_REG = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
+FONT_PATH = "/home/takah/.local/share/fonts/NotoSansCJKjp-Bold.otf"
+FONT_PATH_REG = "/home/takah/.local/share/fonts/NotoSansCJKjp-Regular.otf"
 FONT_PATH_FALLBACK = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 
 
