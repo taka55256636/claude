@@ -40,7 +40,11 @@ def get_authenticated_service():
             flow = InstalledAppFlow.from_client_secrets_file(
                 YOUTUBE_CLIENT_SECRET_FILE, SCOPES
             )
-            creds = flow.run_local_server(port=0)
+            try:
+                creds = flow.run_local_server(port=8080)
+            except Exception:
+                # WSL2などブラウザが開けない環境ではコンソールフローを使用
+                creds = flow.run_console()
 
         # トークンを保存
         with open(YOUTUBE_TOKEN_FILE, "wb") as token:

@@ -5,8 +5,7 @@ moviepy を使ってスライド動画を作成する
 import os
 import textwrap
 from PIL import Image, ImageDraw, ImageFont
-from moviepy.editor import (AudioFileClip, ImageClip, concatenate_videoclips,
-                             CompositeVideoClip, TextClip)
+from moviepy import AudioFileClip, ImageClip, concatenate_videoclips
 from config import (OUTPUT_DIR, VIDEO_WIDTH, VIDEO_HEIGHT, VIDEO_FPS,
                     BG_COLOR, TITLE_COLOR, TEXT_COLOR, ACCENT_COLOR)
 
@@ -126,7 +125,7 @@ def build_video(script_data: dict, audio_path: str, output_path: str) -> str:
 
     # タイトルスライド
     title_path = create_title_slide(title)
-    title_clip = ImageClip(title_path).set_duration(title_duration)
+    title_clip = ImageClip(title_path).with_duration(title_duration)
     clips.append(title_clip)
 
     # 各セクションスライド
@@ -137,13 +136,13 @@ def build_video(script_data: dict, audio_path: str, output_path: str) -> str:
             i,
             len(sections)
         )
-        slide_clip = ImageClip(slide_path).set_duration(section_duration)
+        slide_clip = ImageClip(slide_path).with_duration(section_duration)
         clips.append(slide_clip)
 
     # 動画を結合
     final_video = concatenate_videoclips(clips, method="compose")
-    final_video = final_video.set_audio(audio)
-    final_video = final_video.set_fps(VIDEO_FPS)
+    final_video = final_video.with_audio(audio)
+    final_video = final_video.with_fps(VIDEO_FPS)
 
     final_video.write_videofile(
         output_path,
