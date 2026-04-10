@@ -1,0 +1,23 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+*.log
+.env
+
+# 認証情報（絶対にコミットしない）
+client_secret.json
+token.json
+*.pkl
+
+# 出力ファイル
+youtube_auto/output/
+youtube_auto/data/
+
+# ポートフォリオ（個人データ）
+stock_trader/portfolio.json
