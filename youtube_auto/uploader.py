@@ -104,13 +104,16 @@ def upload_video(video_path: str, thumbnail_path: str, script_data: dict) -> str
     video_id = response["id"]
     print(f"  アップロード完了！ Video ID: {video_id}")
 
-    # サムネイルをアップロード
+    # サムネイルをアップロード（チャンネル認証済みの場合のみ可能）
     if os.path.exists(thumbnail_path):
-        youtube.thumbnails().set(
-            videoId=video_id,
-            media_body=MediaFileUpload(thumbnail_path)
-        ).execute()
-        print("  サムネイルをアップロードしました。")
+        try:
+            youtube.thumbnails().set(
+                videoId=video_id,
+                media_body=MediaFileUpload(thumbnail_path)
+            ).execute()
+            print("  サムネイルをアップロードしました。")
+        except Exception as e:
+            print(f"  ⚠️  サムネイル設定スキップ（チャンネルの電話番号認証が必要）: {e}")
 
     video_url = f"https://www.youtube.com/watch?v={video_id}"
     print(f"  動画URL: {video_url}")
