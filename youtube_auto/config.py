@@ -1,7 +1,18 @@
 import os
 
-# OpenAI API
-OPENAI_API_KEY = "YOUR_OPENAI_API_KEY_HERE"
+# OpenAI API（.envファイルまたは環境変数から読み込む）
+def _load_env():
+    env_file = os.path.join(os.path.dirname(__file__), ".env")
+    if os.path.exists(env_file):
+        with open(env_file) as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    os.environ.setdefault(k.strip(), v.strip())
+
+_load_env()
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 
 # YouTube設定
 YOUTUBE_CHANNEL_ID = "UC9OU39CTBi2fPEtXJAQdh8w"
