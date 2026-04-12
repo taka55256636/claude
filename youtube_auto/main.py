@@ -3,7 +3,7 @@
 YouTube雑学チャンネル自動運営システム
 - 動画投稿時間（23:00）以外は情報収集
 - 毎日23:00に通常動画（10分）を自動生成・投稿
-- 毎日22:00にShorts（1分）を自動生成・投稿
+- 毎日12:00と22:00にShorts（1分）を自動生成・投稿（1日2回）
 """
 import sys
 import os
@@ -21,8 +21,11 @@ from video_creator import build_video
 from thumbnail_creator import create_thumbnail
 from uploader import upload_video, upload_shorts, check_credentials_ready
 
-SHORTS_HOUR = 22   # Shorts投稿時刻
-SHORTS_MINUTE = 0
+# Shorts投稿スケジュール（1日2回）
+SHORTS_SCHEDULE = [
+    (12, 0),   # 第1回: 12:00
+    (22, 0),   # 第2回: 22:00
+]
 
 
 def create_and_upload_video():
@@ -67,16 +70,16 @@ def create_and_upload_video():
         traceback.print_exc()
 
 
-def create_and_upload_shorts():
-    """Shorts動画（1分）を生成してアップロードする。"""
+def create_and_upload_shorts(slot: int = 1):
+    """Shorts動画（1分）を生成してアップロードする。slot=1が1本目、2が2本目。"""
     print("\n" + "=" * 60)
-    print(f"  【Shorts 生成開始】{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"  【Shorts 生成開始 第{slot}回】{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("=" * 60)
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     date_str = datetime.now().strftime("%Y%m%d")
-    audio_path = os.path.join(OUTPUT_DIR, f"shorts_audio_{date_str}.mp3")
-    video_path = os.path.join(OUTPUT_DIR, f"shorts_{date_str}.mp4")
+    audio_path = os.path.join(OUTPUT_DIR, f"shorts_audio_{date_str}_{slot}.mp3")
+    video_path = os.path.join(OUTPUT_DIR, f"shorts_{date_str}_{slot}.mp4")
 
     try:
         from collector import load_collected_topics
@@ -109,52 +112,62 @@ def create_and_upload_shorts():
         traceback.print_exc()
 
 
+def _stop_collect(collect_thread, stop_event):
+    if collect_thread and collect_thread.is_alive():
+        stop_event.set()
+        collect_thread.join()
+        stop_event.clear()
+
+
+def _start_collect(stop_event):
+    t = threading.Thread(target=collect_continuously, args=(30, stop_event), daemon=True)
+    t.start()
+    return t
+
+
 def run_scheduler():
     """メインスケジューラー。"""
+    shorts_times = ", ".join(f"{h:02d}:{m:02d}" for h, m in SHORTS_SCHEDULE)
     print("=" * 60)
     print("  YouTube雑学チャンネル自動運営システム 起動")
     print(f"  通常動画投稿: 毎日 {POST_HOUR:02d}:{POST_MINUTE:02d}")
-    print(f"  Shorts投稿  : 毎日 {SHORTS_HOUR:02d}:{SHORTS_MINUTE:02d}")
+    print(f"  Shorts投稿  : 毎日 {shorts_times}（1日2回）")
     print("  情報収集    : 投稿時間以外は30分ごとに実行")
     print("=" * 60)
 
     collect_once()
 
     posted_today = None
-    shorts_posted_today = None
+    # Shorts投稿済みフラグ: {(date, slot_index): True}
+    shorts_posted = {}
     stop_event = threading.Event()
-    collect_thread = None
+    collect_thread = _start_collect(stop_event)
 
     while True:
         now = datetime.now()
         today = now.date()
+        did_post = False
 
-        # Shorts投稿（22:00）
-        if now.hour == SHORTS_HOUR and now.minute == SHORTS_MINUTE and shorts_posted_today != today:
-            if collect_thread and collect_thread.is_alive():
-                stop_event.set()
-                collect_thread.join()
-                stop_event.clear()
-            create_and_upload_shorts()
-            shorts_posted_today = today
-            collect_thread = threading.Thread(target=collect_continuously, args=(30, stop_event), daemon=True)
-            collect_thread.start()
+        # Shorts投稿（1日2回チェック）
+        for slot_idx, (sh, sm) in enumerate(SHORTS_SCHEDULE, 1):
+            key = (today, slot_idx)
+            if now.hour == sh and now.minute == sm and key not in shorts_posted:
+                collect_thread = _stop_collect(collect_thread, stop_event) or collect_thread
+                create_and_upload_shorts(slot=slot_idx)
+                shorts_posted[key] = True
+                collect_thread = _start_collect(stop_event)
+                did_post = True
+                break
 
         # 通常動画投稿（23:00）
-        elif now.hour == POST_HOUR and now.minute == POST_MINUTE and posted_today != today:
-            if collect_thread and collect_thread.is_alive():
-                stop_event.set()
-                collect_thread.join()
-                stop_event.clear()
+        if not did_post and now.hour == POST_HOUR and now.minute == POST_MINUTE and posted_today != today:
+            _stop_collect(collect_thread, stop_event)
             create_and_upload_video()
             posted_today = today
-            collect_thread = threading.Thread(target=collect_continuously, args=(30, stop_event), daemon=True)
-            collect_thread.start()
+            collect_thread = _start_collect(stop_event)
 
-        else:
-            if collect_thread is None or not collect_thread.is_alive():
-                collect_thread = threading.Thread(target=collect_continuously, args=(30, stop_event), daemon=True)
-                collect_thread.start()
+        elif not collect_thread or not collect_thread.is_alive():
+            collect_thread = _start_collect(stop_event)
 
         time.sleep(60)
 
@@ -163,6 +176,6 @@ if __name__ == "__main__":
     if "--once" in sys.argv:
         create_and_upload_video()
     elif "--shorts" in sys.argv:
-        create_and_upload_shorts()
+        create_and_upload_shorts(slot=1)
     else:
         run_scheduler()
