@@ -16,7 +16,7 @@ OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 
 # YouTube設定
 YOUTUBE_CHANNEL_ID = "UC9OU39CTBi2fPEtXJAQdh8w"
-YOUTUBE_API_KEY = ""         # Google Cloud Console で取得（検索用）
+YOUTUBE_API_KEY = os.environ.get("YOUTUBE_API_KEY", "")
 YOUTUBE_CLIENT_SECRET_FILE = os.path.join(os.path.dirname(__file__), "client_secret.json")  # OAuth用
 YOUTUBE_TOKEN_FILE = os.path.join(os.path.dirname(__file__), "token.json")
 
