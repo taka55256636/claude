@@ -3,7 +3,7 @@
 YouTube雑学チャンネル自動運営システム
 - 動画投稿時間（23:00）以外は情報収集
 - 毎日23:00に通常動画（10分）を自動生成・投稿
-- 毎日12:00と22:00にShorts（1分）を自動生成・投稿（1日2回）
+- 毎日9:00/13:00/18:00/22:00にShorts（1分）を自動生成・投稿（1日4回）
 """
 import sys
 import os
@@ -21,10 +21,12 @@ from video_creator import build_video
 from thumbnail_creator import create_thumbnail
 from uploader import upload_video, upload_shorts, check_credentials_ready
 
-# Shorts投稿スケジュール（1日2回）
+# Shorts投稿スケジュール（1日4回）
 SHORTS_SCHEDULE = [
-    (12, 0),   # 第1回: 12:00
-    (22, 0),   # 第2回: 22:00
+    ( 9, 0),   # 第1回:  9:00
+    (13, 0),   # 第2回: 13:00
+    (18, 0),   # 第3回: 18:00
+    (22, 0),   # 第4回: 22:00
 ]
 
 
