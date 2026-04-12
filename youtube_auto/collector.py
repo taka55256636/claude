@@ -12,7 +12,15 @@ from config import YOUTUBE_API_KEY, SEARCH_QUERY, DATA_DIR
 
 COLLECTED_FILE = os.path.join(DATA_DIR, "collected_topics.json")
 MAX_RESULTS_PER_SEARCH = 50
-MAX_STORED_TOPICS = 500
+MAX_STORED_TOPICS = 2000
+
+# 収集に使うキーワード一覧（ローテーションして多様なデータを取得）
+SEARCH_QUERIES = [
+    "雑学", "豆知識", "面白い雑学", "驚きの雑学", "知らなかった雑学",
+    "歴史の雑学", "科学の雑学", "動物の雑学", "食べ物の雑学", "身体の雑学",
+    "宇宙の雑学", "日本の雑学", "世界の雑学", "言葉の雑学", "数字の雑学",
+    "心理学 雑学", "生物の不思議", "面白い豆知識", "意外な事実", "衝撃の真実",
+]
 
 
 def search_youtube_videos(query: str = SEARCH_QUERY, max_results: int = MAX_RESULTS_PER_SEARCH) -> list[dict]:
@@ -102,12 +110,17 @@ def save_topics(topics: list[dict]):
 
 
 def collect_once():
-    """1回分の情報収集を実行する。"""
-    print(f"  [{datetime.now().strftime('%H:%M:%S')}] 情報収集中: '{SEARCH_QUERY}'")
-    topics = search_youtube_videos()
+    """1回分の情報収集を実行する（複数キーワードをローテーション）。"""
+    # 現在の蓄積数をもとにキーワードをローテーション
+    current_count = len(load_collected_topics())
+    query_index = (current_count // MAX_RESULTS_PER_SEARCH) % len(SEARCH_QUERIES)
+    query = SEARCH_QUERIES[query_index]
+
+    print(f"  [{datetime.now().strftime('%H:%M:%S')}] 情報収集中: '{query}'")
+    topics = search_youtube_videos(query=query)
     added = save_topics(topics)
     total = len(load_collected_topics())
-    print(f"  新規追加: {added}件 / 合計蓄積: {total}件")
+    print(f"  新規追加: {added}件 / 合計蓄積: {total}件 / 次キーワード: '{SEARCH_QUERIES[(query_index + 1) % len(SEARCH_QUERIES)]}'")
     return topics
 
 
