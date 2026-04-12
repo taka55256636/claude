@@ -84,6 +84,11 @@ def create_shorts_slide(text: str, heading: str, slide_num: int, total: int,
     draw.rectangle([40, 40, 260, 100], fill=(255, 0, 80))
     draw.text((55, 48), "#Shorts", font=f_label, fill=(255, 255, 255))
 
+    # AIバッジ（右上）
+    f_ai = _font(44)
+    draw.rectangle([SHORTS_W - 280, 40, SHORTS_W - 40, 100], fill=(0, 150, 255))
+    draw.text((SHORTS_W - 270, 50), "🤖 AI生成", font=f_ai, fill=(255, 255, 255))
+
     # 見出し
     f_head = _font(80, bold=True)
     wrapped_head = textwrap.wrap(heading, width=10)

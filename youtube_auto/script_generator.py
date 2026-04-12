@@ -67,8 +67,13 @@ def generate_script(topics: list[str] | None = None) -> dict:
     raw = response.choices[0].message.content
     data = json.loads(raw)
 
-    # full_text を結合
-    full_text = "\n\n".join(
+    # タイトルに【AI生成】を付与
+    if not data["title"].startswith("【AI生成】"):
+        data["title"] = "【AI生成】" + data["title"]
+
+    # full_text を結合（冒頭にAI告知を追加）
+    ai_notice = "この動画はAI（人工知能）が自動で作成しています。スクリプト・ナレーション・映像・サムネイルすべてAIが生成しています。"
+    full_text = ai_notice + "\n\n" + "\n\n".join(
         f"【{s['heading']}】\n{s['content']}"
         for s in data.get("sections", [])
     )

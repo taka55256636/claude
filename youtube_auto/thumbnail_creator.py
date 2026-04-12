@@ -57,10 +57,15 @@ def create_thumbnail(title: str, subtitle: str = "知らないと損する！", 
     draw = ImageDraw.Draw(img, "RGBA")
     draw_decorations(draw, THUMB_W, THUMB_H)
 
-    # 上部ラベル
+    # 上部ラベル（雑学チャンネル）
     label_font = get_font(40)
-    draw.rectangle([60, 80, 360, 130], fill=(255, 50, 50))
+    draw.rectangle([60, 80, 380, 130], fill=(255, 50, 50))
     draw.text((80, 85), "【雑学チャンネル】", font=label_font, fill=(255, 255, 255))
+
+    # AIバッジ（右上）
+    ai_font = get_font(38)
+    draw.rectangle([THUMB_W - 220, 80, THUMB_W - 60, 130], fill=(0, 150, 255))
+    draw.text((THUMB_W - 210, 87), "🤖 AI生成", font=ai_font, fill=(255, 255, 255))
 
     # タイトル（折り返し対応）
     title_font = get_font(80)
@@ -85,9 +90,11 @@ def create_thumbnail(title: str, subtitle: str = "知らないと損する！", 
         draw.text((x, y_start + 10), line, font=sub_font, fill=(200, 230, 255))
         y_start += 65
 
-    # 右下にアイコン的な文字
-    icon_font = get_font(100)
-    draw.text((THUMB_W - 160, THUMB_H - 150), "✨", font=icon_font, fill=(255, 215, 0))
+    # 下部にAI告知バー
+    ai_bar_font = get_font(34)
+    draw.rectangle([0, THUMB_H - 60, THUMB_W, THUMB_H], fill=(0, 100, 200))
+    ai_text = "🤖 スクリプト・ナレーション・映像・サムネイルすべてAI自動生成"
+    draw.text((60, THUMB_H - 50), ai_text, font=ai_bar_font, fill=(255, 255, 255))
 
     img.save(output_path, "JPEG", quality=95)
     print(f"  サムネイル生成完了: {output_path}")

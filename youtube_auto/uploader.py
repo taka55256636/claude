@@ -62,16 +62,21 @@ def upload_video(video_path: str, thumbnail_path: str, script_data: dict) -> str
     tags = script_data.get("tags", ["雑学", "豆知識", "面白い話"])
 
     # 説明文にフッターを追加
-    full_description = f"""{description}
+    full_description = f"""🤖 この動画はAI（人工知能）が自動で作成しています。
+スクリプト・ナレーション・映像・サムネイルすべてAI生成です。
+
+{description}
 
 ━━━━━━━━━━━━━━━━━━━━━
-📌 このチャンネルでは毎日雑学をお届けしています！
+🤖 AI自動生成チャンネル「毎日雑学」
+📌 毎日AIが雑学をお届けしています！
 チャンネル登録・高評価よろしくお願いします！
 ━━━━━━━━━━━━━━━━━━━━━
 
-#雑学 #豆知識 #面白い話 #知識 #{' #'.join(tags[:3])}
+#雑学 #豆知識 #面白い話 #知識 #AI生成 #AI動画 #{' #'.join(tags[:3])}
 
-投稿日時: {datetime.now().strftime('%Y年%m月%d日')}"""
+投稿日時: {datetime.now().strftime('%Y年%m月%d日')}
+※本動画はAIが自動生成したコンテンツです。"""
 
     print(f"  YouTube にアップロード中: 「{title}」")
     youtube = get_authenticated_service()
@@ -80,7 +85,7 @@ def upload_video(video_path: str, thumbnail_path: str, script_data: dict) -> str
         "snippet": {
             "title": title[:100],
             "description": full_description[:5000],
-            "tags": tags + ["雑学", "豆知識", "面白い話", "知識"],
+            "tags": tags + ["雑学", "豆知識", "面白い話", "知識", "AI生成", "AI動画", "人工知能"],
             "categoryId": "27",  # Education カテゴリ
             "defaultLanguage": "ja",
         },
@@ -128,17 +133,21 @@ def upload_shorts(video_path: str, script_data: dict) -> str:
     if "#Shorts" not in title:
         title = title + " #Shorts"
 
-    description = f"""{script_data.get('hook', '')}
+    description = f"""🤖 この動画はAIが自動生成しています。
+
+{script_data.get('hook', '')}
 
 {script_data.get('body', '')}
 
 ━━━━━━━━━━━━━━━━━━━━━
-📌 毎日雑学をお届け！チャンネル登録よろしくお願いします！
+🤖 AI自動生成チャンネル「毎日雑学」
+📌 毎日AIが雑学をお届け！チャンネル登録よろしくお願いします！
 ━━━━━━━━━━━━━━━━━━━━━
 
-#Shorts #雑学 #豆知識 #面白い話
+#Shorts #雑学 #豆知識 #面白い話 #AI生成 #AI動画
 
-投稿日時: {datetime.now().strftime('%Y年%m月%d日')}"""
+投稿日時: {datetime.now().strftime('%Y年%m月%d日')}
+※本動画はAIが自動生成したコンテンツです。"""
 
     print(f"  Shorts アップロード中: 「{title}」")
     youtube = get_authenticated_service()
@@ -147,7 +156,7 @@ def upload_shorts(video_path: str, script_data: dict) -> str:
         "snippet": {
             "title": title[:100],
             "description": description[:5000],
-            "tags": ["Shorts", "雑学", "豆知識", "面白い話"],
+            "tags": ["Shorts", "雑学", "豆知識", "面白い話", "AI生成", "AI動画", "人工知能"],
             "categoryId": "27",
             "defaultLanguage": "ja",
         },
